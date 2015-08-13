@@ -111,20 +111,28 @@ gulp.task('styles', () => {
     .pipe($.size({title: 'styles'}));
 });
 
-// Concatenate and minify JavaScript
+// Concatenate and minify JavaScript. Optionally transpiles ES6 code to ES5. to
+// enables ES6 support remove the line `"only": "gulpfile.babel.js",` in the
+// `.babelrc` file.
 gulp.task('scripts', () =>
-  gulp.src([
-    // Note: Since we are not using useref in the scripts build pipeline,
-    //       you need to explicitly list your scripts here in the right order
-    //       to be correctly concatenated
-    './app/scripts/main.js'
-    // Other scripts
-  ])
-    .pipe($.concat('main.min.js'))
-    .pipe($.uglify({preserveComments: 'some'}))
-    // Output files
-    .pipe(gulp.dest('dist/scripts'))
-    .pipe($.size({title: 'scripts'}))
+    gulp.src([
+      // Note: Since we are not using useref in the scripts build pipeline,
+      //       you need to explicitly list your scripts here in the right order
+      //       to be correctly concatenated
+      './app/scripts/main.js'
+      // Other scripts
+    ])
+      .pipe($.sourcemaps.init())
+      .pipe($.changed('.tmp/scripts', {extension: '.js'}))
+      .pipe($.babel())
+      .pipe($.sourcemaps.write())
+      .pipe(gulp.dest('.tmp/scripts'))
+      .pipe($.concat('main.min.js'))
+      .pipe($.uglify({preserveComments: 'some'}))
+      // Output files
+      .pipe($.sourcemaps.write('.'))
+      .pipe(gulp.dest('dist/scripts'))
+      .pipe($.size({title: 'scripts'}))
 );
 
 // Scan your HTML for assets & optimize them
@@ -165,7 +173,7 @@ gulp.task('clean', cb => del(['.tmp', 'dist/*', '!dist/.git'], {dot: true},
   cb));
 
 // Watch files for changes & reload
-gulp.task('serve', ['styles'], () => {
+gulp.task('serve', ['scripts', 'styles'], () => {
   browserSync({
     notify: false,
     // Customize the BrowserSync console logging prefix
@@ -179,7 +187,7 @@ gulp.task('serve', ['styles'], () => {
 
   gulp.watch(['app/**/*.html'], reload);
   gulp.watch(['app/styles/**/*.{scss,css}'], ['styles', reload]);
-  gulp.watch(['app/scripts/**/*.js'], ['jshint']);
+  gulp.watch(['app/scripts/**/*.js'], ['jshint', 'scripts']);
   gulp.watch(['app/images/**/*'], reload);
 });
 

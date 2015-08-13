@@ -56,6 +56,12 @@ If you find yourself running into issues during installation or running the tool
 
 If you would prefer not to use any of our tooling, delete the following files from the project: `package.json`, `gulpfile.babel.js`, `.jshintrc` and `.travis.yml`. You can now safely use the boilerplate with an alternative build-system or no build-system at all if you choose.
 
+## ES6 Support
+
+Web Starter Kit has optional ES6 support using [Babel](https://babeljs.io/).
+To enable ES6 support remove the line `"only": "gulpfile.babel.js",` in the [.babelrc](.babelrc) file.
+ES6 source code will be automatically transpiled to ES5 for wide browser support.
+
 ## Extras
 
 Optional additions, such as web server configurations, can be found at [WSK Extras
